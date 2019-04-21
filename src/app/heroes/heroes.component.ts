@@ -15,9 +15,27 @@ export class HeroesComponent implements OnInit {
     this.getHeroes();
   }
 
-  getHeroes(): void　{
+  getHeroes(): void {
     this.heroService.getHeroes()
       .subscribe(heroes => this.heroes = heroes);
+  }
+
+  add(name: string): void {
+    name = name.trim();
+    if (!name) { return; }
+    this.heroService.addHero({name} as Hero)
+      .subscribe(hero => {
+        this.heroes.push(hero);
+      });
+  }
+
+  delete(hero: Hero): void {
+    // 削除対象以外のヒーローリストを作成して画面用のHero[]につめる
+    // = サーバー側の更新後のHero[]と同期させる
+    this.heroes = this.heroes.filter(h => h !== hero);
+    this.heroService.deleteHero(hero).subscribe();
+    // subscribeされるまでObservableは何もしないのでその試行用 > 結果はデータが消されない
+    // this.heroService.deleteHero(hero)
   }
 
 }

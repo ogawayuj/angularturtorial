@@ -5,6 +5,7 @@ import { MessageService} from './message.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
 import { type } from 'os';
+import { templateRefExtractor } from '@angular/core/src/render3';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -32,6 +33,19 @@ export class HeroService {
     return this.http.get<Hero>(url).pipe(
       tap(_ => this.log(`HeroService: fetched hero id=${id}`))
       , catchError(this.handleError<Hero>(`id=${id}`))
+    );
+  }
+
+  /** GET: ヒーローを検索する
+   * 検索語なし＝空の配列を返す
+   * */
+  searchHeroes(term: string): Observable<Hero[]> {
+    if (!term.trim()) {
+      return of([]);
+    }
+    return this.http.get<Hero[]>(`${this.heroesUrl}/?name=${term}`).pipe(
+      tap(_ => this.log(`found heroes matching "${term}"`))
+      , catchError(this.handleError<Hero[]>(`search heroes matching "$term"`))
     );
   }
 
@@ -85,4 +99,5 @@ export class HeroService {
       return of(result as T);
     };
   }
+
 }
